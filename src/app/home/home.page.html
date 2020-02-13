@@ -7,7 +7,6 @@
   </ion-toolbar>
 </ion-header>
 
-
 <ion-content>
   <ion-item lines="full">
     <ion-thumbnail slot="start">
@@ -17,7 +16,6 @@
   </ion-item>
 
   <ion-list *ngFor="let folder of folders">
-
     <ion-item *ngIf="folder['.tag'] == 'folder'" detail-push (click)="openFolder(folder.path_lower)">
       <ion-label>
         <ion-icon name="folder-open" id="colorIcono"></ion-icon>
@@ -26,17 +24,15 @@
     </ion-item>
 
     <ion-item *ngIf="folder['.tag'] == 'file'">
-      
       <ion-label>
         <ion-icon name="document" id="colorIcono"></ion-icon>
         {{folder.name}} 
       </ion-label>
 
+      <ion-button clear (click)="downloadAndOpen(folder.path_lower)">
+        <ion-icon name="cloud-download" slot="icon-only" style="zoom:1.0"></ion-icon>
+      </ion-button> 
       
-        <ion-button clear (click)="downloadAndOpen(folder.path_lower)">
-          <ion-icon name="cloud-download" slot="icon-only" style="zoom:1.0"></ion-icon>
-        </ion-button> 
-      
-
     </ion-item>
   </ion-list>
+

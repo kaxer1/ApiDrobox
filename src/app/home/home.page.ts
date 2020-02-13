@@ -1,8 +1,6 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
-import { LoadingController, NavController } from '@ionic/angular';
-import { DropboxService } from '../service/dropbox.service';
-import { ActivatedRoute, Router } from '@angular/router';
-
+import { Component, OnInit } from '@angular/core';
+import { NavController, LoadingController } from '@ionic/angular';
+import { DropboxService } from '../services/dropbox.service';
 
 @Component({
   selector: 'app-home',
@@ -16,48 +14,18 @@ export class HomePage implements OnInit {
   usuario: any;
   imgUser: string;
   name:string;
-  accessToken: string;
 
-  public href: string = "";
+  constructor(public navCtrl: NavController, public dropbox: DropboxService, public loadingCtrl: LoadingController) {}
 
-  constructor(
-    public dropbox: DropboxService,
-    public navCtrl: NavController,
-    public loadingCtrl: LoadingController,
-    public activeRoute: ActivatedRoute,
-    public router: Router) {
-      
-  }
-
-  urlTree: any; token: any;
-  ngOnInit() {
-    
-    this.encontrarToken();
+   ngOnInit() {
+    this.dropbox.setAccessToken("Access token");
     this.obtenerCliente();
     this.ionViewDidLoad();
   }
 
-  encontrarToken(){
-    this.href = this.router.url;
-    this.urlTree = this.router.parseUrl(this.router.url);
-    this.token = this.urlTree.fragment;
-    // this.token = this.dropbox.accessToken;
-
-    var cadena = this.token,
-    arregloDeSubCadenas = cadena.split("=", 2);
-
-    // console.log(arregloDeSubCadenas);
-    var accessKey = arregloDeSubCadenas[1];
-    // console.log(accessKey);
-    var aux =  accessKey.split("&");
-    // console.log(aux);
-    this.accessToken = aux[0];
-    // console.log(this.accessToken);
-  }
-
   obtenerCliente(){
 
-    this.dropbox.getUserInfo(this.accessToken).subscribe((data: any) =>{
+    this.dropbox.getUserInfo().subscribe((data: any) =>{
       this.usuario = data;
       this.imgUser = this.usuario['profile_photo_url'];
       console.log(this.name = this.usuario['name']['display_name']);
@@ -65,35 +33,14 @@ export class HomePage implements OnInit {
 
   }
 
-  downloadAndOpen(path){
-    this.dropbox.descargar(path).subscribe((data: any) => {
-      console.log(data);
-    }, err => {
-      console.log(err);
-    });
-  }
-
   ionViewDidLoad() {
+
     this.folders = [];
 
     this.animacion();
 
-    this.dropbox.getFolders().subscribe((data: any) => {
-      // console.log(data);
+    this.dropbox.getFolders().subscribe((data: any)=> {
       this.folders = data;
-      this.loadingCtrl.dismiss();
-    }, (err) => {
-      console.log(err);
-    });
-  }
-
-  ionViewDidEnter(){
-
-    this.animacion();
-
-    this.dropbox.getFolders().subscribe((data: any) => {
-      this.folders = data;
-      this.loadingCtrl.dismiss();
     }, (err) => {
       console.log(err);
     });
@@ -101,15 +48,13 @@ export class HomePage implements OnInit {
   }
 
   openFolder(path) {
-    
     this.animacion();
     this.navCtrl.pop();
 
     this.dropbox.getFolders(path).subscribe((data: any) => {
-      
       this.folders = data;
       this.depth++;
-      console.log('Estoy en la funcion openFolder', data);
+
     }, err => {
       console.log(err);
     });
@@ -117,13 +62,11 @@ export class HomePage implements OnInit {
 
   goBack() {
     this.animacion();
-
     this.navCtrl.pop();
 
     this.dropbox.goBackFolder().subscribe((data: any) => {
       this.folders = data;
       this.depth--;
-
     }, err => {
       console.log(err);
     });
@@ -138,9 +81,18 @@ export class HomePage implements OnInit {
       var ref = this;
       setTimeout(function () {
         ref.loadingCtrl.dismiss();
-      }, 2000)
+      }, 1500)
 
     });
   }
 
+  downloadAndOpen(path){
+    console.log("para descargar", path);
+
+    this.dropbox.descargar(path).subscribe( (data: any) => {
+      console.log(data);
+    }, err => {
+      console.log(err);
+    });
+  }
 }
